@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+    <style type="text/css">
+        body {
+            background-image: url("/static/carhome/img/car.png"); /*加载静态配置文件*/
+        }
+
+        #T {
+            color: blank;
+            font-size: 25px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 60px;
+            letter-spacing: 1px;
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        #avatar_img {
+            margin-left: 20px;
+        }
+
+        #avatar {
+            display: none;
+        }
+    </style>
+
+    <link rel="stylesheet" href='/static/carhome/bs/css/bootstrap.css'>
+</head>
+<body>
+<div id="T">西邮汽车登录页面</div>
+<div class="container">
+    <div class='row'>
+        <div class="col-md-6 col-lg-offset-3">
+            <form>
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="user">用户名</label>
+                    <input type="text" id="user" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="pwd">密码</label>
+                    <input type="password" id="pwd" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="pwd">验证码</label>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input type="text" id="valid_code" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <img width="270" height="40" id="valid_code_img" src="/get_validCode_img/" alt="">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                </div>
+                <input type="button" class="btn btn-success login_btn " value="登录"><span class="error"></span>
+                <a href="/register" class="btn btn-success pull-right">注册</a>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script src="/static/js/jquery-3.2.1.min.js"></script>
+<script>
+    /////验证码图片刷新
+    $("#valid_code_img").click(function () {
+        $(this)[0].src += "?"
+    })
+
+    //登录验证
+    $(".login_btn").click(function () {
+        $.ajax({
+            url: "",//走当前路径
+            type: "post",
+            data: {
+                user: $("#user").val(),
+                pwd: $("#pwd").val(),
+                valid_code: $("#valid_code").val(),
+                csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
+            },
+            success: function (data) {
+                console.log(data)
+                if (data.user) {
+                    location.href = "/index/"
+                } else {
+                    $(".error").text(data.msg).css({"color": "red", "marginLeft": "10px"})
+
+                    setTimeout(function () {
+                        $(".error").text("")
+                    }, 2500)
+                }
+            }
+        })
+    })
+</script>
+</body>
+</html>

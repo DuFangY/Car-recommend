@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer"/>  <!---->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <title>西邮汽车</title>
+{#    <link rel="shortcut icon" href= 'static/carhome/img/web.ico'>#}
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href='/static/carhome/bs/css/bootstrap.css'>
+    <script src="/static/js/jquery-3.2.1.min.js"></script>
+    <script src="/static/carhome/bs/js/bootstrap.min.js"></script>
+    <style>
+        .item li {
+            float: left;
+            display: inline;
+            margin: 18px;
+            margin-left: 35px;
+        }
+        #user-icon {
+            font-size: 18px;
+            margin-right: 10px;
+            vertical-align: -3px;
+        }
+        .clear1{
+            clear: both;
+            height: 30px;
+        }
+        .clear{
+            clear: both;
+            height: 100px;
+        }
+
+    </style>
+
+
+
+</head>
+<body>
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">西邮汽车</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">首页 <span class="sr-only">(current)</span></a></li>
+                <li><a href="/show_car">汽车展厅</a></li>
+            </ul>
+
+
+
+            <ul class="nav navbar-nav navbar-right">  <!--  验证是否当前登录   -->
+                {% if request.user.is_authenticated %}
+                    <li><a href="#"><span id="user-icon"
+                                          class="glyphicon glyphicon-user"></span>{{ request.user.username }}</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                           aria-expanded="false">更多 <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/change_password">修改密码</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="/logout">注销</a></li>
+                        </ul>
+                    </li>
+
+                {% else %}
+                    <li><a href="/login">登录</a></li>
+                    <li><a href="/register">注册</a></li>
+
+                {% endif %}
+
+
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="panel panel-warning">
+                {% if request.user.is_authenticated %}
+                    <div class="panel-heading glyphicon glyphicon-phone" style="width: 100%">个人信息</div>
+                    <div class="panel-body">
+                         <p style="float: left"><img width="90px" height="90px" src='media/{{ request.user.avatar }}' ></p>
+                        <p style="text-align: center">昵称:{{ request.user.username }}</p>
+
+                        <p style="text-align: center">电话:{{ request.user.telephone }}</p>
+                        <p style="text-align: center">注册时间:{{ request.user.create_time }}</p>
+                        <p style="text-align: center">本次登录:{{ request.user.last_login }}</p>
+
+                    </div>
+                {% else %}
+                    <div class="panel-heading">个人信息</div>
+                    <div class="panel-body">
+                        <p>您目前为游客状态,请注册登录获得更好的体验</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!--点赞车辆展示-->
+            {% if request.user.is_authenticated %}
+                {% csrf_token %}
+                <div class="panel panel-danger" id="good">
+                    <div class="panel-heading glyphicon glyphicon-heart"  style="width: 100%">我的喜欢</div>
+                    <div class="panel-body" id="carlovelist">
+                        {% for car in love_name %}
+                            <h5><a href="/search?name={{ car }}" target="_blank"   style="font-size: 15px">{{ car}}</a> <a href="javascript:void(0)" onclick="del_love.call(this)"  class="del pull-right"  value='{{ car }}'>删除</a></h5>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="panel panel-warning" id="bad">
+                    <div class="panel-heading glyphicon glyphicon glyphicon-ban-circle" style="width: 100%">我的黑名单</div>
+                    <div class="panel-body" id="carbadlist">
+                        {% for car in bad_name %}
+                            <h5><a href="/search?name={{ car }}" target="_blank"   style="font-size: 15px">{{ car}}</a> <a href="javascript:void(0)" onclick="del_bad.call(this)"  class="del pull-right"  value='{{ car }}'>删除</a></h5>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="panel panel-info">
+                <div class="panel-heading">广告投放</div>
+                <div class="panel-body">
+                    <p>电话: 019-88888888</p>
+                    <p>在线客服咨询:</p>
+                    <img src="/static/carhome/img/ad.png" width="120px">
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <p  style="text-align: center" ><img  src="/static/carhome/img/ad1.png"style="width: 100%;height: 260px"></p><hr>
+            <div class="form-group form-inline" style="width:100%;text-align:center">
+                {% csrf_token %}
+                <input type="text"  onkeypress="entersearch($(this))" class="form-control" style="width: 350px;height: 40px;" placeholder="请输入车辆全称" id="inf">
+                <input type="button" class="btn btn-default search_btn" value="搜索">
+            </div>
+
+            <div class="clear1"></div>
+            <div class="jumbotron" >
+
+                {% if request.user.is_authenticated %}
+                    <h3>{{ request.user.username }},你好,欢迎使用西邮汽车!</h3>
+                {% else %}
+                    <h3>游客你好,欢迎使用西邮汽车！</h3>
+                {% endif %}
+                <p>这是一个推荐汽车的网站，您可以使用此网站选择适合您的汽车。</p>
+
+            </div>
+            <ul class="nav nav-pills">
+                {% for type in car_type %}
+                    <li role="presentation"><a href="/type_car?type={{ type.type_car }}" style="font-size: 19px" target="_blank">{{ type.type_car }}</a></li>
+
+                {% endfor %}
+
+            </ul>
+            <br><br>
+            {% if rec_num != 0 %}
+                <div class="recommend">
+                    <nav class="navbar navbar-default " >
+                        <div class="container-fluid">
+                            <!-- Brand and toggle get grouped for better mobile display -->
+                            <div class="navbar-header " style="display: block;margin: 0 auto;">
+                                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                                        data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                                    <span class="sr-only">Toggle navigation</span>
+                                    <span class="icon-bar"></span>
+                                    <span class="icon-bar"></span>
+                                    <span class="icon-bar"></span>
+                                </button>
+                                <a class="navbar-brand" href="#">西邮汽车为您推荐</a>
+
+                            </div>
+                        </div><!-- /.container-fluid -->
+                    </nav>
+                    {% if rec_num != 0 %}  <!--推荐列表有车辆时推荐-->
+                        {% for car in info %}
+                            <ul class="item">
+                                <li class="img">
+                                    <a href='/search?name={{ car.name }}' target="_blank"><img width="260px" height="200px"
+                                                                                               align="bottom"
+                                                                                               src={{ car.img_url }}></a>
+                                    <center><a href='/search?name={{ car.name }}' target="_blank"
+                                               style="font-size: 20px ">{{ car.name }}</a></center>
+
+                                    <center style="font-size: 15px">指导价格 : {{ car.price }}</center>
+                                    {% if car.score == 0.00 %}
+                                        <center style="font-size: 15px">口碑评分 : 暂无口碑评分</center>
+                                    {% else %}
+                                        <center style="font-size: 15px">口碑评分 : {{ car.score }}</center>
+                                    {% endif %}
+                                    <span class="glyphicon glyphicon-comment" style="float: left">评论({{ car.comment_count }})</span>
+                                    <span class="glyphicon glyphicon-thumbs-up" style="float: right">点赞({{ car.up_count }})</span>
+                                </li>
+                            </ul>
+                        {% endfor %}
+                    {% endif %}
+                    <!--滚动播放图片-->
+                    <!--<div id="carousel-example-generic" class="carousel slide" data-ride="carousel" style="width: 100%;display: block;margin: 0 auto;">
+
+                        <ol class="carousel-indicators">
+                            <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
+                            <li data-target="#carousel-example-generic" data-slide-to="1"></li>
+                            <li data-target="#carousel-example-generic" data-slide-to="2"></li>
+                            <li data-target="#carousel-example-generic" data-slide-to="3"></li>
+                            <li data-target="#carousel-example-generic" data-slide-to="4"></li>
+                        </ol>
+
+
+                        <div class="carousel-inner"  role="listbox" >
+                            <div class="item active">
+                                <a href="/search?name={{ info1.name }}" target="_blank"><img src="{{info1.img_url}}"  style="width: 100%;height: 400px" alt="{{ info1.name }}"></a>
+                                <br>
+                                <a href="/search?name={{ info1.name }}" target="_blank"><p style="text-align: center;color:black;font-size: 20px">{{ info1.name }}</p></a>
+                            </div>
+                            <div class="item">
+                                <a href="/search?name={{ info2.name }}" target="_blank"><img src="{{info2.img_url}}"  style="width: 100%;height: 400px" alt="{{ info2.name }}"></a>
+                                <br>
+                                <a href="/search?name={{ info1.name }}" target="_blank"><p style="text-align: center;color:black;font-size: 20px">{{ info2.name }}</p></a>
+                            </div>
+                            <div class="item">
+                                <a href="/search?name={{ info3.name }}" target="_blank"><img src="{{info3.img_url}}"  style="width: 100%;height: 400px" alt="{{ info3.name }}"></a>
+                                <br>
+                                <a href="/search?name={{ info1.name }}" target="_blank"><p style="text-align: center;color:black;font-size: 20px">{{ info3.name }}</p></a>
+                            </div>
+                            <div class="item">
+                                <a href="/search?name={{ info4.name }}" target="_blank"><img src="{{info4.img_url}}"  style="width: 100%;height: 400px" alt="{{ info4.name }}"></a>
+                                <br>
+                                <a href="/search?name={{ info1.name }}" target="_blank"><p style="text-align: center;color:black;font-size: 20px">{{ info4.name }}</p></a>
+                            </div>
+                            <div class="item">
+                                <a href="/search?name={{ info5.name }}" target="_blank"><img src="{{info5.img_url}}"  style="width: 100%;height: 400px" alt="{{ info5.name }}"></a>
+                                <br>
+                                <a href="/search?name={{ info1.name }}" target="_blank"><p style="text-align: center;color:black;font-size: 20px">{{ info5.name }}</p></a>
+                            </div>
+
+                        </div>
+
+
+                        <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+                            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                        <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+                            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    </div>-->
+
+                </div>
+            {% else %}
+                <div class="recommend">
+                    {% if request.user.is_authenticated %}
+                        <nav class="navbar navbar-default " >
+                            <div class="container-fluid">
+                                <!-- Brand and toggle get grouped for better mobile display -->
+                                <div class="navbar-header " style="display: block;margin: 0 auto;">
+                                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                                            data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                                        <span class="sr-only">Toggle navigation</span>
+                                        <span class="icon-bar"></span>
+                                        <span class="icon-bar"></span>
+                                        <span class="icon-bar"></span>
+                                    </button>
+                                    <a class="navbar-brand" href="#">您可以看看以下车辆</a>
+
+                                </div>
+                            </div><!-- /.container-fluid -->
+                        </nav>
+                    {% endif %}
+                    {% for car in cold_ %}
+                        <ul class="item">
+                            <li class="img">
+                                <a href='/search?name={{ car.name }}' target="_blank"><img width="260px" height="200px"
+                                                                                           align="bottom"
+                                                                                           src={{ car.img_url }}></a>
+                                <center><a href='/search?name={{ car.name }}' target="_blank"
+                                           style="font-size: 20px ">{{ car.name }}</a></center>
+
+                                <center style="font-size: 15px">指导价格 : {{ car.price }}</center>
+                                {% if car.score == 0.00 %}
+                                    <center style="font-size: 15px">口碑评分 : 暂无口碑评分</center>
+                                {% else %}
+                                    <center style="font-size: 15px">口碑评分 : {{ car.score }}</center>
+                                {% endif %}
+                                <span class="glyphicon glyphicon-comment" style="float: left">评论({{ car.comment_count }})</span>
+                                <span class="glyphicon glyphicon-thumbs-up" style="float: right">点赞({{ car.up_count }})</span>
+                            </li>
+                        </ul>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <div class="clear"></div>
+
+        </div>
+        <div class="col-md-3">
+            <div class="panel panel-primary">
+                <div class="panel-heading">三日内推荐帖点击排行</div>
+                <div class="panel-body">
+                    {% for title,url,view in artical %}
+                        <p><a href="{{ url }}" target="_blank">{{ title }}</a>
+                        <span class="glyphicon glyphicon-eye-open " style="float: right;">{{ view }}</span>
+                        </p>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">热门品牌</div>
+                <div class="panel-body">
+                    {% for hot_car in hot_car_tag %}
+                        <span><a href="/search?name={{ hot_car }}" target="_blank">{{ hot_car }}&nbsp&nbsp&nbsp</a></span>
+                        <span style="color:#67b168">|</span>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="panel panel-info">
+                <div class="panel-heading">西安邮电大学<a href="http://www.xiyou.edu.cn/" target="_blank" class="pull-right"> >>官网 </a></div>
+                <div class="panel-body">
+                    <p style="text-align: center"><img src="/static/carhome/img/XUPT.png" style="height: 200px;width: 300px;"></p>
+                    <p style="text-align: center"><a href="http://www.xiyou.edu.cn/" target="_blank" style="font-size: 20px">你不能错过的大学体验</a></p>
+                    <p style="text-align: center"><a href="http://www.xiyou.edu.cn/" target="_blank" style="font-size: 23px">西北地区唯一一所邮电类高校</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="link">
+    <hr ></hr>
+    <dl>
+        <span style="color: #999999;font-size: 16px">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp友情链接&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</span>
+        <span >
+            <a href="http://auto.sina.com.cn/" style="color: #333333;font-size: 16px" target="_blank">新浪汽车</a>
+            <a href="http://auto.sohu.com/" style="color: #333333;font-size: 16px" target="_blank">搜狐汽车</a>
+            <a href="http://auto.163.com/" style="color: #333333;font-size: 16px" target="_blank">网易汽车</a>
+            <a href="http://www.cheshi.com/" style="color: #333333;font-size: 16px" target="_blank">网上车市</a>
+            <a href="http://auto.people.com.cn/" style="color: #333333;font-size: 16px" target="_blank">人民网汽车</a>
+            <a href="http://auto.china.com/" style="color: #333333;font-size: 16px" target="_blank">中华网汽车</a>
+            <a href="http://www.pcauto.com.cn/" style="color: #333333;font-size: 16px" target="_blank">太平洋汽车</a>
+            <a href="http://www.feelcars.com/" style="color: #333333;font-size: 16px" target="_blank">汽车探索网</a>
+            <a href="http://www.360che.com/" style="color: #333333;font-size: 16px" target="_blank">卡车之家</a>
+            <a href="http://www.ittime.com.cn/" style="color: #333333;font-size: 16px" target="_blank">IT时代周刊</a>
+            <a href="http://auto.ifeng.com/" style="color: #333333;font-size: 16px" target="_blank">凤凰汽车</a>
+            <a href="//www.autohome.com.cn/chezhan/falankefu/" style="color: #333333;font-size: 16px" target="_blank">法兰克福车展</a>
+            <a href="http://creditcard.pingan.com/youhuihuodong/autohomepc6.shtml" style="color: #333333;font-size: 16px" target="_blank">汽车之家联名卡</a>
+            <a href="//www.che168.com/#pvareaid=100449" style="color: #333333;font-size: 16px" target="_blank">二手车之家</a>
+            <a href="http://www.qichezhuanye.com/" style="color: #333333;font-size: 16px" target="_blank">汽车专业网</a>
+            <a href="http://www.chinaautonews.com.cn/" style="color: #333333;font-size: 16px" target="_blank">中国汽车新闻网</a>
+            <a href="https://www.pingan.com/?autohome" style="color: #333333;font-size: 16px" target="_blank">平安官网</a>
+        </span>
+    </dl>
+    <dl>
+        <span style="color: #999999;font-size: 16px">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp特别鸣谢&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</span>
+        <span>
+
+            <a href="http://www.xiyou.edu.cn/" style="color: #333333;font-size: 16px" target="_blank">西安邮电大学</a>
+            <a href="http://cs.xupt.edu.cn:81/xiyoucs/index.asp" style="color: #333333;font-size: 16px" target="_blank">西安邮电计算机学院</a>
+        </span>
+    </dl>
+</div>
+<div class="panel panel-footer" style="position: relative;bottom: 0px">
+    <h5 style="text-align: center;">西邮汽车 为您推荐汽车的最好网站</h5>
+    <h5 style="text-align: center">© 2021 西邮汽车 版权所有 杜方圆</h5>
+    <div style="text-align: center">
+        <a class="footimg" href="https://www.12377.cn" target="_blank" style="margin-right: 10px">
+            <img src="//s.autoimg.cn/www/site/index/images/copyright-4.png" alt="中国互联网举报中心" height="52">
+        </a>
+        <a class="footimg" href="http://www.bjjubao.org" target="_blank" style="margin-right: 10px">
+            <img src="//s.autoimg.cn/www/site/index/images/copyright-5.png" alt="北京互联网举报中心" height="52">
+        </a>
+        <a class="footimg" href="http://www.12377.cn/node_548446.htm" target="_blank" style="margin-right: 10px">
+            <img src="//s.autoimg.cn/www/site/index/images/copyright-6.png" alt="网络举报APP下载" height="52">
+        </a>
+        <a class="footimg" href="http://www.12377.cn/" target="_blank" style="margin-right: 10px">
+            <img src="//s.autoimg.cn/www/site/index/images/copyright-7.png" alt="网上有害信息举报专区" height="52">
+        </a>
+    </div>
+</div>
+<script>
+
+    var car_list = {{ love_name|safe }}
+    var bad_list = {{ bad_name|safe }}
+    //alert(bad_list)
+    //ajax向后端传递要删除的信息
+
+    function del_love(love_name){   //删除喜欢的车辆
+        var car = $(this).attr("value")
+        $.ajax({
+            url: "/delelove/",
+            type: "post",
+            data: {
+                "csrfmiddlewaretoken": $("[name='csrfmiddlewaretoken']").val(),
+                "car":car,
+
+            },
+            success:function (data){
+                console.log(data);
+
+                car_list.splice($.inArray(data.car,car_list),1);
+                console.log(car_list);
+                $("#carlovelist").html("");
+                var tag=''
+                $.each(car_list,function(i,val) {
+                    tag =tag + '<h5><a href="/search?name='+val+'" target="_blank"   style="font-size: 15px">'+val+'</a> <a href="#" onclick="del_love.call(this)"  class="del pull-right"  value='+val+'>删除</a></h5>'
+                    //location.reload()
+                })
+                $("#carlovelist").html(tag);
+                //console.log(tag)
+
+
+
+            }
+        })
+    }
+
+
+    function del_bad(bad_name){  //删除不喜欢的车辆
+        var car = $(this).attr("value")
+        $.ajax({
+            url: "/delelove/",
+            type: "post",
+            data: {
+                "csrfmiddlewaretoken": $("[name='csrfmiddlewaretoken']").val(),
+                "car":car,
+
+            },
+            success:function (data){
+                console.log(data);
+
+                bad_list.splice($.inArray(data.car,bad_list),1);
+                console.log(bad_list);
+                $("#carbadlist").html("");
+                var tag1=''
+                $.each(bad_list,function(i,val) {
+                   tag1 =tag1 + '<h5><a href="/search?name='+val+'" target="_blank"   style="font-size: 15px">'+val+'</a> <a href="#" onclick="del_bad.call(this)"  class="del pull-right"  value='+val+'>删除</a></h5>'
+                    //location.reload()
+                    //alert(tag1)
+                })
+                $("#carbadlist").html(tag1);
+                //console.log(tag)
+
+
+
+            }
+        })
+    }
+
+
+    $(".search_btn").click(function() {
+        $.ajax({
+            url: "",//走当前路径
+            type: "post",
+            data: {
+                inf: $("#inf").val(),
+                csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val(),
+            },
+            success: function (data) {
+
+                if (data.inf) {
+                    open("/search?name=" + data.inf)
+                } else {
+                    alert(data.msg)
+                }
+            }
+
+        })
+    })
+
+    function entersearch(obj){
+        var event = window.event || arguments.callee.caller.arguments[0];
+        if (event.keyCode == 13) {
+            $.ajax({
+                url: "",//走当前路径
+                type: "post",
+                data: {
+                    inf: $("#inf").val(),
+                    csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val(),
+                },
+                success: function (data) {
+
+                    if (data.inf) {
+                        open("/search?name=" + data.inf)
+                    } else {
+                        alert(data.msg)
+                    }
+                }
+
+            })
+        }
+        }
+</script>
+
+</body>
+</html>
